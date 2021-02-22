@@ -101,3 +101,48 @@ if __name__ == "__main__":
 
     # If running as script, print scraped data
     print(scrape_all())
+
+    def hemispheres(browser):
+        url = (
+            "https://astrogeology.usgs.gov/search/"
+            "results?q=hemisphere+enhanced&k1=target&v1=Mars"
+        )
+
+        browser.visit(url)
+# Create a new dictionary in the data dictionary to hold a list of dictionaries 
+# with the URL string and title of each hemisphere image
+        hemisphere_image_urls = []
+        for i in range(4):
+            browser.find_by_css("a.product-item h3")[i].click()
+            hemi_data = scrape_hemisphere(browser.html)
+            # Add hemisphere to list
+            hemisphere_image_urls.append(hemi_data)
+            browser.back()
+
+        return hemisphere_image_urls
+
+# Return the scraped data as a list of dictionaries with the URL string 
+# and title of each hemisphere image.
+def scrape_hemisphere(html_text):
+    # parse html text
+    hemi_soup = soup(html_text, "html.parser")
+
+    # Add try/except for error handling
+    try:
+        title_elem = hemi_soup.find("h2", class_="title").get_text()
+        sample_elem = hemi_soup.find("a", text="Sample").get("href")
+
+    except AttributeError:
+        title_elem = None
+        sample_elem = None
+
+    hemispheres = {
+        "title": title_elem,
+        "img_url": sample_elem
+    }
+
+    return hemispheres
+
+if __name__ == "__main__":
+
+    print(scrape_all())
